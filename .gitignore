@@ -5,6 +5,8 @@ client/node_modules/
 
 .env
 
+firebase-service-account.json
+
 client/dist/
 
 .DS_Store
