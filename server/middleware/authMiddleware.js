@@ -1,4 +1,4 @@
-const { auth, db } = require('../config/firebase');
+const { auth, db } = require('../config/firebaseServer');
 
 const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split('Bearer ')[1];
