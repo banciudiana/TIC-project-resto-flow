@@ -8,9 +8,11 @@ globalAppMiddleware(app);
 // ROUTES
 const authRoutes = require('./routes/authRoute');
 const productRoutes = require('./routes/productRoute');
+const orderRoutes = require('./routes/orderRoute');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 
 // check logging system for cors, helmet, morgan
 app.get('/api/health', (req, res) => {

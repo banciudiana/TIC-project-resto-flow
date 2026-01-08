@@ -11,19 +11,12 @@ const findAll = async () => {
     return products;
 };
 
-const findById = async (id) => {
-    const doc = await productCollection.doc(id).get();
-    if (!doc.exists) return null;
-    return { id: doc.id, ...doc.data() };
-};
+
 
 const create = async (productData) => {
     const docRef = await productCollection.add(productData);
     return docRef.id;
 };
 
-const remove = async (id) => {
-    await productCollection.doc(id).delete();
-};
 
-module.exports = { findAll, findById, create, remove };
+module.exports = { findAll, create};
