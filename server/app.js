@@ -5,20 +5,20 @@ const globalAppMiddleware = require('./middleware/globalAppMiddleware');
 const app = express();
 globalAppMiddleware(app);
 
-//ROUTES
+// ROUTES
 const authRoutes = require('./routes/authRoute');
-
+const productRoutes = require('./routes/productRoute');
 
 app.use('/api/auth', authRoutes);
-//check logging system for cors, helmet, morgan
+app.use('/api/products', productRoutes);
+
+// check logging system for cors, helmet, morgan
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Logging system active' });
 });
 
-
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(` Server is running on port ${PORT}`);
   console.log(` Mod: ${process.env.NODE_ENV}`);
 });
-
