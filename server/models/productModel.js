@@ -18,5 +18,13 @@ const create = async (productData) => {
     return docRef.id;
 };
 
+const assignCategory = async (productId, categoryName) => {
+    const productRef = db.collection('products').doc(productId);
+    await productRef.update({
+        category: categoryName,
+        updatedAt: new Date().toISOString()
+    });
+    return { productId, category: categoryName };
+};
 
-module.exports = { findAll, create};
+module.exports = { findAll, create, assignCategory };

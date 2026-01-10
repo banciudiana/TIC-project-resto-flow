@@ -1,0 +1,102 @@
+
+:root {
+
+  --vt-c-white: #ffffff;
+  --vt-c-white-soft: #f8fafc;
+  --vt-c-white-mute: #f1f5f9;
+
+  
+  --vt-c-blue-dark: #1e3a8a;      
+  --vt-c-blue-brand: #2563eb;     
+  --vt-c-blue-light: #60a5fa;
+
+  
+  --vt-c-yellow-vibrant: #facc15; 
+  --vt-c-yellow-soft: #fef08a;
+
+
+  --vt-c-black: #0f172a;          
+  --vt-c-black-soft: #1e293b;     
+  --vt-c-black-mute: #334155;
+
+  
+  --vt-c-divider-light-1: rgba(30, 58, 138, 0.2);
+  --vt-c-divider-light-2: rgba(30, 58, 138, 0.1);
+  --vt-c-divider-dark-1: rgba(255, 255, 255, 0.2);
+  --vt-c-divider-dark-2: rgba(255, 255, 255, 0.1);
+
+  --vt-c-text-light-1: var(--vt-c-blue-dark);
+  --vt-c-text-light-2: rgba(30, 58, 138, 0.7);
+  
+  
+  --vt-c-text-dark-1: var(--vt-c-white);
+  --vt-c-text-dark-2: rgba(241, 245, 249, 0.7);
+}
+
+
+:root {
+  --color-background: var(--vt-c-white);
+  --color-background-soft: var(--vt-c-white-soft);
+  --color-background-mute: var(--vt-c-white-mute);
+
+  --color-border: var(--vt-c-divider-light-2);
+  --color-border-hover: var(--vt-c-divider-light-1);
+
+  --color-heading: var(--vt-c-text-light-1);
+  --color-text: var(--vt-c-text-light-1);
+  
+ 
+  --color-primary: var(--vt-c-blue-brand);
+  --color-accent: var(--vt-c-yellow-vibrant);
+  --color-on-primary: var(--vt-c-white);
+
+  --section-gap: 160px;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--vt-c-black);
+    --color-background-soft: var(--vt-c-black-soft);
+    --color-background-mute: var(--vt-c-black-mute);
+
+    --color-border: var(--vt-c-divider-dark-2);
+    --color-border-hover: var(--vt-c-divider-dark-1);
+
+    --color-heading: var(--vt-c-text-dark-1);
+    --color-text: var(--vt-c-text-dark-2);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition: color 0.5s, background-color 0.5s;
+  line-height: 1.6;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

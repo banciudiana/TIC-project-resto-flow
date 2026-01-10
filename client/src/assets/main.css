@@ -1,0 +1,54 @@
+@import './base.css';
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  font-weight: normal;
+}
+
+
+a,
+.brand-blue {
+  text-decoration: none;
+  color: var(--color-primary);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+
+@media (hover: hover) {
+  a:hover {
+    background-color: rgba(250, 204, 21, 0.2); 
+    border-radius: 4px;
+  }
+}
+
+
+.container {
+  width: 100%;
+  padding: 0 1rem;
+  margin: 0 auto;
+}
+
+
+@media (min-width: 1024px) {
+  #app {
+    display: grid;
+    grid-template-columns: 1fr; 
+    padding: 0;
+  }
+}
+
+.text-accent {
+  color: var(--color-accent); 
+}
+
+.bg-primary {
+  background-color: var(--color-primary); 
+  color: var(--vt-c-white); 
+}
+
+
+.border-accent {
+  border: 2px solid var(--color-accent);
+}
