@@ -1,28 +1,39 @@
-const { auth, db } = require('../config/firebaseServer');
+const { verifyToken } = require('../utils/auth');
 
-const verifyToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split('Bearer ')[1];
 
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized access. Token is missing.' });
-  }
+function validateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-  try {
-    const decodedToken = await auth.verifyIdToken(token);
-    req.user = decodedToken; 
+    if (!token) {
+        return res.status(401).json({ error: "No token found" });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+        return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+
+  
+    req.user = decoded; 
     next();
-  } catch (error) {
-    res.status(403).json({ error: 'Token invalid or expired.' });
-  }
+}
+
+
+const isOwner = (req, res, next) => {
+  
+    if (!req.user) {
+        return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    if (req.user.role !== 'ROLE_OWNER') {
+        return res.status(403).json({ 
+            error: "Access denied. This action requires OWNER privileges." 
+        });
+    }
+
+    next(); 
 };
 
-// midd for checking Patron role
-const isPatron = async (req, res, next) => {
-  if (req.user && req.user.role === 'patron') {
-    next();
-  } else {
-    res.status(403).json({ error: 'Access denied. Patron role is required.' });
-  }
-};
 
-module.exports = { verifyToken, isPatron };
+module.exports = { validateToken, isOwner };

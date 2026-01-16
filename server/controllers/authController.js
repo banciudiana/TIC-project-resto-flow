@@ -1,45 +1,123 @@
-const dbService = require('../services/dbService'); 
+const { validationResult } = require('express-validator')
+const { findByEmail, verifyPassword, checkEmailExists, create } = require('../models/userModel.js')
+const { generateToken, hashPassword } = require('../utils/auth');
 
-exports.registerUser = async (req, res) => {
-  try {
-    const { uid, email, name, role } = req.body;
+const login = async (req, res) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+        return res.status(400).json({ error: validationErrors.array() })
+    }
     
-    const validRoles = ['waiter', 'chef', 'patron'];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({ error: "Invalid role" });
+    try {
+        const { email, password } = req.body;
+        const user = await findByEmail(email)
+
+        if(!user || !(await verifyPassword(password, user.password))) {
+            return res.status(401).json({ error: "Invalid login" })
+        }
+
+        
+        const token = generateToken({
+            id: user.id,
+            email: user.email,
+            role: user.role 
+        });
+
+        res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role 
+            }
+        });
+
+    } catch(error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Authentication failed' });
+    }
+}
+
+const register = async (req, res) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+        return res.status(400).json({ error: validationErrors.array() });
     }
 
-    const userProfile = {
-      uid,
-      email,
-      name,
-      role
-    };
+    try {
+        const { email, password, role } = req.body;
+
+        if (!req.user || req.user.role !== 'ROLE_OWNER') {
+            return res.status(403).json({ 
+                error: 'Acces denied. Only owners can create new user accounts.' 
+            });
+        }
+
+        
+        const userExists = await checkEmailExists(email);
+        if (userExists) {
+            return res.status(409).json({ error: 'Email already in use.' });
+        }
+
+        const hashedPassword = await hashPassword(password);
+        
+        const newUser = {
+            email,
+            password: hashedPassword,
+            role: role, // ROLE_WAITER, ROLE_CHEF 
+          
+        };
+
+        const userId = await create(newUser);
+
+        res.status(201).json({
+            message: `Account for ${role} created successfully.`,
+            user: { id: userId, email, role }
+        });
+    } catch(error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ error: 'Error creating account.' });
+    }
+};
+
+
+
+
+const registerOwner = async (req, res) => {
+    try {
+        const { email, password, secretKey } = req.body;
 
    
-    const { db } = require('../config/firebaseServer');
-    await db.collection('users').doc(uid).set({
-      ...userProfile,
-      createdAt: new Date().toISOString()
-    });
+        if (secretKey !== process.env.JWT_SECRET) {
+            return res.status(403).json({ error: 'Key is incorrect.' });
+        }
 
-    res.status(201).json(userProfile);
-  } catch (error) {
-    res.status(500).json({ error: "Error for creating user profile: " + error.message });
-  }
-};
+        const userExists = await checkEmailExists(email);
+        if (userExists) {
+            return res.status(409).json({ error: 'Email already in use.' });
+        }
 
-exports.getUserProfile = async (req, res) => {
-  try {
-    
-    const user = await dbService.getDocument('users', req.params.uid);
-    
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+        const hashedPassword = await hashPassword(password);
+
+        const newOwner = {
+            email,
+            password: hashedPassword,
+            role: 'ROLE_OWNER', 
+            createdAt: new Date().toISOString()
+        };
+
+        const userId = await create(newOwner);
+
+        res.status(201).json({
+            message: 'Owner created successfully!',
+            user: { id: userId, email, role: 'ROLE_OWNER' }
+        });
+    } catch (error) {
+        console.error('Owner registration error:', error);
+        res.status(500).json({ error: 'Error creating Owner.' });
     }
-    
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching user data: " + error.message });
-  }
 };
+
+
+module.exports = { login, register, registerOwner };

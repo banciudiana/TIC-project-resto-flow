@@ -2,14 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const globalAppMiddleware = require('./middleware/globalAppMiddleware');
 
+
 const app = express();
+app.use(express.json());
 globalAppMiddleware(app);
+
 
 // ROUTES
 const authRoutes = require('./routes/authRoute');
 const productRoutes = require('./routes/productRoute');
 const orderRoutes = require('./routes/orderRoute');
 const categoryRoutes = require('./routes/categoryRoute');
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
