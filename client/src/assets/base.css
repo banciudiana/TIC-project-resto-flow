@@ -12,7 +12,7 @@
 
   
   --vt-c-yellow-vibrant: #facc15; 
-  --vt-c-yellow-soft: #fef08a;
+  --vt-c-yellow-soft: #c0a435;
 
 
   --vt-c-black: #0f172a;          
@@ -48,6 +48,7 @@
  
   --color-primary: var(--vt-c-blue-brand);
   --color-accent: var(--vt-c-yellow-vibrant);
+  --color-accent-hover: var(--vt-c-yellow-soft);
   --color-on-primary: var(--vt-c-white);
 
   --section-gap: 160px;

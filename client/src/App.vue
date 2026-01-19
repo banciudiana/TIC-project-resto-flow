@@ -13,7 +13,7 @@ onMounted(() => {
 
 function handleLogout() {
   authStore.logout()
-  router.push('/login')
+  router.push('/')
 }
 </script>
 
@@ -32,7 +32,7 @@ function handleLogout() {
 
       <div class="auth-section">
         <template v-if="!authStore.isAuthenticated">
-          <RouterLink to="/login" class="login-link">Login</RouterLink>
+          <RouterLink to="/" class="login-link">Login</RouterLink>
         </template>
 
         <template v-else>
@@ -52,24 +52,24 @@ function handleLogout() {
 </template>
 
 <style scoped>
-
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 5%;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  background: var(--color-primary); 
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  color: white;
 }
 
 .logo-text {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #333;
+  color: white;
 }
 
 .logo-text span {
-  color: #42b983; 
+  color: var(--color-accent); 
 }
 
 nav {
@@ -84,38 +84,50 @@ nav {
   gap: 15px;
   margin-left: 20px;
   padding-left: 20px;
-  border-left: 1px solid #eee;
+  border-left: 1px solid rgba(255, 255, 255, 0.2); 
 }
 
 .user-info {
   font-size: 0.9rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: right;
 }
 
 .user-info small {
   display: block;
-  color: #42b983;
+  color: var(--color-accent);
   font-weight: bold;
   text-transform: uppercase;
+  font-size: 0.7rem;
 }
 
 .logout-btn {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 5px 12px;
-  border-radius: 4px;
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent); 
+  padding: 6px 15px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-primary); 
 }
 
 nav a {
   text-decoration: none;
-  color: #555;
+  color: white;
   font-weight: 600;
+  opacity: 0.8;
 }
 
+nav a:hover, 
 nav a.router-link-exact-active {
-  color: #42b983;
+  opacity: 1;
+  color: var(--color-accent); 
 }
 </style>

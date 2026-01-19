@@ -67,6 +67,10 @@ defineProps({
     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
   }
 
+  .accent:hover {
+    background-color: var(--color-accent-hover); 
+  }
+
   .primary:hover {
     background-color: var(--vt-c-blue-dark);
   }
