@@ -66,7 +66,7 @@ const register = async (req, res) => {
             email,
             password: hashedPassword,
             role: role, // ROLE_WAITER, ROLE_CHEF 
-          
+            createdAt: new Date().toISOString()
         };
 
         const userId = await create(newUser);
