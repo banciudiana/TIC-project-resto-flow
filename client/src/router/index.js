@@ -18,6 +18,12 @@ const router = createRouter({
     meta: { requiresAuth: true, role: 'ROLE_OWNER' }
     },
     {
+      path: '/register-staff',
+      name: 'RegisterStaff',
+      component: () => import('../views/RegisterEmployeeView.vue'),
+      meta: { requiresAuth: true, role: 'ROLE_OWNER' }
+    },
+    {
       path: '/staff-home',
       name: 'home',
       component: HomeView

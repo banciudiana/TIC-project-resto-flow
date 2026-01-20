@@ -14,7 +14,7 @@ const createProduct = async (req, res) => {
         const { name, price, category, description, available } = req.body;
 
         const newProduct = {
-            name: name,
+            name: name,    
             price: parseFloat(price),
             category: category ,
             description: description || '',

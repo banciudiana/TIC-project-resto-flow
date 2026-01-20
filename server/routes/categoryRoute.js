@@ -1,9 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { getAllCategories, createCategory } = require('../controllers/categoryController');
+const{categoryValidation} = require('../validators/categoryValidator');
+
+const { 
+    getAllCategories, 
+    createCategory, 
+    updateCategory, 
+    deleteCategory 
+} = require('../controllers/categoryController');
+
+const { validateToken, isOwner } = require('../middleware/authMiddleware');
 
 
-router.get('/', getAllCategories);
-router.post('/', createCategory);
+router.get('/', validateToken, getAllCategories);
+
+router.post('/', validateToken, isOwner, categoryValidation, createCategory);
+router.put('/:id', validateToken, isOwner, categoryValidation, updateCategory);
+router.delete('/:id', validateToken, isOwner, deleteCategory);
 
 module.exports = router;

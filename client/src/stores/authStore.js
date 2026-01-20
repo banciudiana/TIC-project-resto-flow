@@ -45,6 +45,31 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function registerStaff(userData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register-waiter-or-chef`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token.value}` 
+      },
+      body: JSON.stringify(userData)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Nu s-a putut înregistra angajatul')
+    }
+
+    return data 
+  } catch (error) {
+    console.error('Register error:', error)
+    throw error
+  }
+}
+
+
   function logout() {
     user.value = null
     token.value = null
@@ -61,6 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 }
 
-  
-  return { user, token, isAuthenticated, login, logout,checkAuth, isOwner }
+
+
+  return { user, token, isAuthenticated, login, logout, checkAuth, isOwner, registerStaff }
 })
