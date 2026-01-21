@@ -35,4 +35,21 @@ const isOwner = (req, res, next) => {
 };
 
 
-module.exports = { validateToken, isOwner };
+const isWaiter = (req, res, next) => {
+    if (req.user && req.user.role === 'ROLE_WAITER') {
+        next();
+    } else {
+        res.status(403).json({ error: 'Access denied. Waiter role required.' });
+    }
+};
+
+const isChef = (req, res, next) => {
+    if (req.user && req.user.role === 'ROLE_CHEF') {
+        next();
+    } else {
+        res.status(403).json({ error: 'Access denied. Chef role required.' });
+    }
+};
+
+
+module.exports = { validateToken, isOwner, isWaiter, isChef };

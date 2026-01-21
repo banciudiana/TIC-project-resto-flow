@@ -11,20 +11,58 @@ const findAll = async () => {
     return products;
 };
 
-
+const findById = async (id) => {
+    const doc = await productCollection.doc(id).get();
+    return doc.exists ? { id: doc.id, ...doc.data() } : null;
+};
 
 const create = async (productData) => {
-    const docRef = await productCollection.add(productData);
+ 
+    const docRef = await productCollection.add({
+        ...productData,
+        createdAt: new Date().toISOString()
+    });
     return docRef.id;
 };
 
-const assignCategory = async (productId, categoryName) => {
-    const productRef = db.collection('products').doc(productId);
+const update = async (id, updateData) => {
+    const productRef = productCollection.doc(id);
     await productRef.update({
-        category: categoryName,
+        ...updateData,
         updatedAt: new Date().toISOString()
     });
-    return { productId, category: categoryName };
+
+    const updatedDoc = await productRef.get();
+    return { id: updatedDoc.id, ...updatedDoc.data() };
 };
 
-module.exports = { findAll, create, assignCategory };
+const remove = async (id) => {
+    await productCollection.doc(id).delete();
+};
+
+
+const assignCategory = async (productId, categoryObject) => {
+    const productRef = productCollection.doc(productId);
+    await productRef.update({
+        category: categoryObject, 
+        updatedAt: new Date().toISOString()
+    });
+    return { productId, category: categoryObject };
+};
+
+const findByName = async (name) => {
+    const snapshot = await productCollection
+        .where('name', '==', name)
+        .get();
+    return !snapshot.empty;
+};
+
+module.exports = { 
+    findAll, 
+    findById, 
+    create, 
+    update, 
+    remove, 
+    assignCategory,
+    findByName
+};

@@ -1,9 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { getAllOrders, createOrder } = require('../controllers/orderController');
+const { 
+    getAllOrders, 
+    createOrder, 
+    addProductToOrder, 
+    updateOrderStatus, 
+    deleteOrder 
+} = require('../controllers/orderController');
 
 
-router.get('/', getAllOrders);
-router.post('/', createOrder);
+const { validateToken, isWaiter, isChef, isOwner } = require('../middleware/authMiddleware');
+
+router.get('/', validateToken, getAllOrders);
+
+
+router.post('/', validateToken, isWaiter, createOrder);
+
+router.post('/:id/add-product', validateToken, isWaiter, addProductToOrder);
+
+router.patch('/:id/status', validateToken, updateOrderStatus);
+
+router.delete('/:id', validateToken, deleteOrder);
 
 module.exports = router;
