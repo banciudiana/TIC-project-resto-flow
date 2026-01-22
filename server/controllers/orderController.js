@@ -17,17 +17,27 @@ const createOrder = async (req, res) => {
 
     try {
         const { tableNumber, notes } = req.body;
+
+        const waiterId = req.user.userId;
+        if (!waiterId) {
+            return res.status(401).json({ error: "User ID not found in token payload" });
+        }
     
         const orderData = {
-            tableNumber,
-            waiterId: req.user.uid,
-            notes: notes || ""
+            tableNumber: parseInt(tableNumber),
+            waiterId: waiterId,
+            notes: notes || "",
+            status: 'PENDING',
+            items: [],
+            totalAmount: 0
         };
+
+    
 
         const orderId = await orderModel.create(orderData);
         res.status(201).json({ id: orderId, ...orderData, status: 'PENDING' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to create order' });
+        res.status(500).json({ error: 'Failed to create order',message: error.message,stack: error.stack });
     }
 };
 
@@ -64,7 +74,8 @@ const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        const userRole = req.user.role; 
+        const currentUserId = req.user.userId; 
+        const userRole = req.user.role;
 
         const order = await orderModel.findById(id);
         if (!order) return res.status(404).json({ error: 'Order not found' });
@@ -90,7 +101,7 @@ const updateOrderStatus = async (req, res) => {
         
         let extraFields = {};
         if (status === 'COOKING') {
-            extraFields.chefId = req.user.uid;
+            extraFields.chefId = currentUserId;
         }
 
         const updated = await orderModel.updateStatus(id, status, extraFields);
