@@ -129,10 +129,32 @@ const deleteOrder = async (req, res) => {
     }
 };
 
+
+const removeProduct = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        const { index, price } = req.body; 
+
+        const order = await orderModel.findById(id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+
+
+        if (order.status !== 'PENDING') {
+            return res.status(400).json({ error: 'Cannot remove products from an order that has already been processed by the kitchen!' });
+        }
+
+        const result = await orderModel.removeProductFromOrder(id, index, price);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 module.exports = {
     getAllOrders,
     createOrder,
     addProductToOrder,
     updateOrderStatus,
-    deleteOrder
+    deleteOrder,removeProduct
 };
