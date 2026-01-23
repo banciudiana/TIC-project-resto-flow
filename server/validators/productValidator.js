@@ -6,10 +6,19 @@ const productValidation = [
         .trim()
         .notEmpty().withMessage('Name of the product is required')
         .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters')
-        .custom(async (value) => {
-            const exists = await findByName(value);
-            if (exists) {
-                throw new Error('There is already a product with this name!');
+        .custom(async (value, { req }) => {
+            const existingProduct = await findByName(value);
+            
+            if (existingProduct) {
+             
+                if (req.params.id && existingProduct.id !== req.params.id) {
+                    throw new Error('There is already a product with this name!');
+                }
+                
+           
+                if (!req.params.id) {
+                    throw new Error('There is already a product with this name!');
+                }
             }
             return true;
         }),

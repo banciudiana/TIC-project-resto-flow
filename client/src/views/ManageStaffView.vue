@@ -14,7 +14,7 @@
       <table v-else class="custom-table">
         <thead>
           <tr>
-            <th>Name</th>
+   
             <th>Email</th>
             <th>Role</th>
           </tr>
@@ -23,7 +23,7 @@
           <tr v-for="member in staffStore.staffMembers" 
               :key="member.id"
               @contextmenu.prevent="openContextMenu($event, member)">
-            <td>{{ member.name }}</td>
+          
             <td>{{ member.email }}</td>
             <td>
               <span :class="['badge', member.role.toLowerCase()]">
@@ -39,7 +39,7 @@
       <div v-if="menuState.visible" 
            class="context-menu" 
            :style="{ top: menuState.y + 'px', left: menuState.x + 'px' }">
-        <button @click="triggerUpdate">Update Data</button>
+ 
         <button @click="triggerDelete" class="btn-danger">Delete Employee</button>
       </div>
     </Transition>
@@ -70,15 +70,22 @@ const closeContextMenu = () => {
 }
 
 const triggerDelete = async () => {
-  if (confirm(`Remove ${menuState.selectedMember.name} from system?`)) {
-    await staffStore.removeEmployee(menuState.selectedMember.id)
+
+  const memberEmail = menuState.selectedMember?.email;
+
+  if (memberEmail && confirm(`Remove ${memberEmail} from system?`)) {
+    try {
+      await staffStore.removeEmployee(menuState.selectedMember.id);
+      closeContextMenu();
+    } catch (error) {
+      alert("Error removing employee: " + error.message);
+    }
+  } else if (!memberEmail) {
+    console.error("No member selected or email is missing");
   }
-}
+};
 
-const triggerUpdate = () => {
 
-  console.log('Update member:', menuState.selectedMember)
-}
 </script>
 
 <style scoped>
@@ -104,6 +111,7 @@ const triggerUpdate = () => {
   padding: 1rem;
   color: var(--color-primary);
   border-bottom: 2px solid var(--color-border);
+  text-align: center; 
 }
 
 .custom-table td {
@@ -111,13 +119,17 @@ const triggerUpdate = () => {
   background: white;
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  vertical-align: middle;
 }
 
 .badge {
+  display: inline-block; 
   padding: 0.3rem 0.8rem;
   border-radius: 50px;
   font-size: 0.8rem;
   font-weight: bold;
+  min-width: 80px; 
 }
 
 .role_waiter { background: #e0f2f1; color: #00695c; }

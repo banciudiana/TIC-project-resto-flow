@@ -30,6 +30,15 @@ const router = createRouter({
       requiresAuth: true, 
       role: 'ROLE_OWNER' 
     }},
+    {
+    path: '/manage-menu',
+    name: 'ManageMenu',
+    component: () => import('@/views/ManageMenuView.vue'),
+    meta: { 
+      requiresAuth: true, 
+      role: 'ROLE_OWNER' 
+    }
+  },
   
     {
       path: '/staff-home',

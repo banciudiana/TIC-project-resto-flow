@@ -50,11 +50,16 @@ const assignCategory = async (productId, categoryObject) => {
     return { productId, category: categoryObject };
 };
 
+
 const findByName = async (name) => {
     const snapshot = await productCollection
         .where('name', '==', name)
         .get();
-    return !snapshot.empty;
+    
+    if (snapshot.empty) return null;
+    
+    
+    return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
 };
 
 module.exports = { 
