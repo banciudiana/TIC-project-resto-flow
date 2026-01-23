@@ -10,7 +10,7 @@
       <div class="card">
         <h3>Staff</h3>
         <p>Register or remove staff members (Chefs/Waiters)</p>
-        <BaseButton variant="primary" @click="$router.push('/register-staff')">
+        <BaseButton variant="primary" @click="$router.push('/manage-staff')">
           Manage Staff
         </BaseButton>
       </div>

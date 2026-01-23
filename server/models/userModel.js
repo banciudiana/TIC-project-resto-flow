@@ -40,9 +40,37 @@ const create = async (userData) => {
     return docRef.id;
 }
 
+
+const getStaff = async () => {
+    const snapshot = await usersCollection
+        .where('role', 'in', ['ROLE_WAITER', 'ROLE_CHEF'])
+        .get();
+
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+};
+const deleteUser = async (id) => {
+    await usersCollection.doc(id).delete();
+    return true;
+};
+
+
+const updateUser = async (id, data) => {
+    const docRef = usersCollection.doc(id);
+    await docRef.update(data);
+    return { id, ...data };
+};
+
+
+
 module.exports = {
     findByEmail,
     verifyPassword,
     checkEmailExists,
-    create
+    create,
+    getStaff,
+    deleteUser,
+    updateUser
 }

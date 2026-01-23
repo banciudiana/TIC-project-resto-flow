@@ -13,12 +13,15 @@ const authRoutes = require('./routes/authRoute');
 const productRoutes = require('./routes/productRoute');
 const orderRoutes = require('./routes/orderRoute');
 const categoryRoutes = require('./routes/categoryRoute');
+const userRoutes = require('./routes/userRoute');
+
 
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/users', userRoutes);
 
 // check logging system for cors, helmet, morgan
 app.get('/api/health', (req, res) => {
