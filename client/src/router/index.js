@@ -38,8 +38,14 @@ const router = createRouter({
       requiresAuth: true, 
       role: 'ROLE_OWNER' 
     }
-  },
-  
+    },
+    {
+      path: '/waiter',
+      name: 'waiter-dashboard',
+      component: () => import('../views/WaiterView.vue'),
+      meta: { requiresAuth: true, role: 'ROLE_WAITER' }
+    },
+      
     {
       path: '/staff-home',
       name: 'home',
