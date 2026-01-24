@@ -12,34 +12,33 @@ const getAllProducts = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
-   
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     try {
         const { name, price, categoryId } = req.body;
 
-        const category = await categoryModel.findById(categoryId);
-        if (!category) {
-            return res.status(404).json({ error: 'Category not found' });
-        }
-
         const newProduct = {
             name,
             price: parseFloat(price),
-            category: {
+            category: null 
+        };
+
+      
+        if (categoryId && categoryId.trim() !== "") {
+            const category = await categoryModel.findById(categoryId);
+            if (!category) {
+                return res.status(404).json({ error: 'Category not found' });
+            }
+            newProduct.category = {
                 id: category.id,
                 name: category.name
-            }
-        };
+            };
+        }
 
         const productId = await productModel.create(newProduct);
         res.status(201).json({ id: productId, ...newProduct });
     } catch (error) {
-        console.error("EROARE SERVER:", error); 
-        console.error('Error creating product:', error);
         res.status(500).json({ error: 'Failed to create product' });
     }
 };
@@ -65,7 +64,7 @@ const updateProduct = async (req, res) => {
         };
 
      
-        if (categoryId && categoryId !== existingProduct.category.id) {
+        if (categoryId && (!existingProduct.category || categoryId !== existingProduct.category.id)) {
             const newCategory = await categoryModel.findById(categoryId);
             if (!newCategory) {
                 return res.status(404).json({ error: 'New category not found!' });
@@ -74,7 +73,7 @@ const updateProduct = async (req, res) => {
                 id: newCategory.id,
                 name: newCategory.name
             };
-        }
+}
 
         const updatedProduct = await productModel.update(id, updateData);
         res.status(200).json(updatedProduct);

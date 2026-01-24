@@ -120,6 +120,55 @@
       </div>
     </div>
   </Transition>
+  <Transition name="fade">
+      <div v-if="isAddProductModalOpen" class="modal-overlay" @click.self="isAddProductModalOpen = false">
+        <div class="modal-content">
+          <h2>{{ isEditingProduct ? 'Update Product' : 'New Product' }}</h2>
+          <div class="divider-small"></div>
+          
+          <div class="form-group">
+            <label>Product Name</label>
+            <input 
+              v-model="newProduct.name" 
+              type="text" 
+              placeholder="ex: Burger, Coca-Cola..." 
+              class="custom-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Price (RON)</label>
+            <input 
+              v-model="newProduct.price" 
+              type="number" 
+              step="0.01"
+              placeholder="0.00" 
+              class="custom-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select v-model="newProduct.categoryId" class="custom-input">
+              <option value="">-- Undefined / Unassigned --</option>
+              
+              <option v-for="cat in catStore.categories" :key="cat.id" :value="cat.id">
+                {{ cat.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            
+              <BaseButton variant="accent" @click="handleAddProduct">
+                {{ isEditingProduct ? 'Save Changes' : 'Save Product' }}
+              </BaseButton>
+              <BaseButton variant="secondary" @click="isAddProductModalOpen = false">Cancel</BaseButton>
+           
+          </div>
+        </div>
+      </div>
+    </Transition>
     </main>
 </template>
 
@@ -136,6 +185,15 @@ const isAddCategoryModalOpen = ref(false)
 const newCategoryName = ref('')
 const isAssignModalOpen = ref(false)
 const selectedCategoryId = ref('')
+const isAddProductModalOpen = ref(false)
+const newProduct = reactive({
+  name: '',
+  price: '',
+  categoryId: ''
+})
+const isEditingProduct = ref(false);
+const editingProductId = ref(null);
+
 
 
 const menuState = reactive({
@@ -223,28 +281,85 @@ const triggerAssignCategory = () => {
 }
 
 const handleAssignCategory = async () => {
-  if (!selectedCategoryId.value) return
+  if (!selectedCategoryId.value && selectedCategoryId.value !== "") return
   
   try {
-  
-    const currentItem = menuState.item;
+    const item = menuState.item;
 
-    await prodStore.updateProduct(currentItem.id, {
-      name: currentItem.name,
-      
-      price: Number(currentItem.price), 
-      categoryId: selectedCategoryId.value
-    })
+
+    const payload = {
+      name: item.name,
+      price: Number(item.price), 
+      categoryId: selectedCategoryId.value || null 
+    };
+
+    await prodStore.updateProduct(item.id, payload);
     
-    isAssignModalOpen.value = false
+    isAssignModalOpen.value = false;
+    closeCtx();
   } catch (error) {
     console.error("Assign Error Details:", error);
-    alert("Could not assign category. " + error.message);
+    alert("Update failed. Check if the product name is unique!");
   }
 }
-const openAddProductModal = () => console.log('Add Prod')
+const openAddProductModal = () => {
+  resetProductForm();
+  isAddProductModalOpen.value = true;
+}
+
+const handleAddProduct = async () => {
+ if (!newProduct.name.trim() || !newProduct.price) {
+    alert("Numele și prețul sunt obligatorii!");
+    return;
+  }
+
+  const payload = {
+    name: newProduct.name,
+    price: Number(newProduct.price),
+    categoryId: newProduct.categoryId || null
+  };
+
+  try {
+    if (isEditingProduct.value) {
+      // MOD EDITARE
+      await prodStore.updateProduct(editingProductId.value, payload);
+    } else {
+      // MOD ADAUGARE
+      await prodStore.addProduct(payload);
+    }
+    
+    isAddProductModalOpen.value = false;
+    resetProductForm();
+  } catch (error) {
+    alert("Eroare la salvare: " + error.message);
+  }
+}
+
+const resetProductForm = () => {
+  isEditingProduct.value = false;
+  editingProductId.value = null;
+  newProduct.name = '';
+  newProduct.price = '';
+  newProduct.categoryId = '';
+};
+
+
+
 const triggerEditCategory = () => console.log('Edit Cat', menuState.item)
-const triggerEditProduct = () => console.log('Edit Prod', menuState.item)
+const triggerEditProduct = () => {
+  const item = menuState.item; 
+  
+  isEditingProduct.value = true;
+  editingProductId.value = item.id;
+  
+  
+  newProduct.name = item.name;
+  newProduct.price = item.price;
+  newProduct.categoryId = item.category?.id || '';
+  
+  isAddProductModalOpen.value = true;
+  closeCtx();
+};
 
 </script>
 

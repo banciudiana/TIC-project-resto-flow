@@ -7,39 +7,48 @@ export const useCategoryStore = defineStore('category', () => {
   const categories = ref([])
   const authStore = useAuthStore()
 
-  async function fetchCategories() {
+    async function fetchCategories() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories`, {
+        const response = await fetch(`${API_BASE_URL}/api/categories`, {
         headers: { 'Authorization': `Bearer ${authStore.token}` }
-      })
-      categories.value = await response.json()
-    } catch (error) { console.error('Fetch categories error:', error) }
-  }
-  
-  
+        });
+        const data = await response.json();
+        
+        // REPARĂ AICI: Ne asigurăm că data este un Array
+        // Dacă serverul trimite eroare, data ar putea fi { error: '...' }
+        categories.value = Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error('Fetch categories error:', error);
+        categories.value = []; // Resetăm la array gol în caz de eroare gravă
+    }
+    }
 
     async function addCategory(name) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/categories`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authStore.token}`
-      },
-      body: JSON.stringify({ name })
-    })
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/categories`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authStore.token}`
+        },
+        body: JSON.stringify({ name })
+        });
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || 'Failed');
 
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.error || 'Failed to create category')
-
-
-    categories.value.push(data)
-    return data
-  } catch (error) {
-    console.error('Add category error:', error)
-    throw error
-  }
-}
+        // REPARĂ AICI: Adăugăm obiectul NOU în array-ul EXISTENT
+        // Nu face categories.value = data; (asta ar transforma array-ul în obiect)
+        categories.value.push(data); 
+        
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+    }
+  
+  
 
   async function removeCategory(id) {
     try {

@@ -24,12 +24,7 @@ function handleLogout() {
     </div>
 
     <nav>
-      <RouterLink v-if="authStore.isAuthenticated" to="/home">Meniu</RouterLink>
       
-      <!-- <RouterLink v-if="authStore.user?.role === 'ROLE_OWNER'" to="/register">
-        Adaugă Personal
-      </RouterLink> -->
-
       <div class="auth-section">
         <template v-if="!authStore.isAuthenticated">
           <RouterLink to="/" class="login-link">Login</RouterLink>

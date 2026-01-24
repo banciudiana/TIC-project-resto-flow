@@ -34,7 +34,8 @@ const productValidation = [
         }),
 
     body('categoryId')
-        .notEmpty().withMessage('Category ID is required and must be valid')
+    .optional({ checkFalsy: true }) 
+    .trim(),
 ];
 
 module.exports = { productValidation };

@@ -27,8 +27,11 @@ const create = async (productData) => {
 
 const update = async (id, updateData) => {
     const productRef = productCollection.doc(id);
+    
+    const cleanData = JSON.parse(JSON.stringify(updateData)); 
+
     await productRef.update({
-        ...updateData,
+        ...cleanData,
         updatedAt: new Date().toISOString()
     });
 
