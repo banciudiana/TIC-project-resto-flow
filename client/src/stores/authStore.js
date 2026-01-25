@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue'
 import { API_BASE_URL } from '../utils/constants'
+import { auth } from '@/firebase.js'; 
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 export const useAuthStore = defineStore('auth', () => {
 
@@ -26,11 +28,16 @@ export const useAuthStore = defineStore('auth', () => {
         body: JSON.stringify({ email, password })
       })
 
+     
+
       const data = await response.json()
 
       if (!response.ok) {
         throw new Error(data.error || 'Login failed')
       }
+
+
+      await signInWithEmailAndPassword(auth, email, password);
 
       user.value = data.user
       token.value = data.token
@@ -59,7 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.error || 'Nu s-a putut înregistra angajatul')
+      throw new Error(data.error || 'Registration failed')
     }
 
     return data 
@@ -70,21 +77,24 @@ export const useAuthStore = defineStore('auth', () => {
 }
 
 
-  function logout() {
+  async function logout() {
+
+    await signOut(auth); 
+
     user.value = null
     token.value = null
     localStorage.clear()
   }
 
   function checkAuth() {
-  const savedToken = localStorage.getItem('authToken')
-  const savedUser = localStorage.getItem('authUser')
+    const savedToken = localStorage.getItem('authToken')
+    const savedUser = localStorage.getItem('authUser')
 
-  if (savedToken && savedUser) {
-    token.value = savedToken
-    user.value = JSON.parse(savedUser)
+    if (savedToken && savedUser) {
+      token.value = savedToken
+      user.value = JSON.parse(savedUser)
+    }
   }
-}
 
 
 

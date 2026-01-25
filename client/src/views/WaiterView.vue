@@ -3,7 +3,7 @@
     <header class="waiter-header">
       <div class="header-left">
         <h1>WAITER STATION</h1>
-        <div class="status-badge">Live Orders: {{ orderStore.orders.length }}</div>
+        <div class="status-badge">Live orders: {{ orderStore.activeOrders.length }}</div>
         
         <BaseButton variant="accent" class="new-order-btn" @click="openAddOrderModal">
           <span class="plus-icon"></span> NEW ORDER
@@ -13,7 +13,14 @@
 
     <div class="divider"></div>
 
-    
+ 
+    <section class="orders-container">
+    <OrderKanban 
+        :orders="orderStore.activeOrders" 
+        @order-click="handleOrderClick"
+        @order-contextmenu="handleOrderContext"
+    />
+    </section>
 
     <Transition name="fade">
       <div v-if="isNewOrderModalOpen" class="modal-overlay" @click.self="isNewOrderModalOpen = false">
@@ -82,8 +89,20 @@
                   <strong>{{ currentTotal }} RON</strong>
                 </div>
                 <div class="modal-actions-group">
-                  <BaseButton variant="primary" @click="handleCreateOrder">SEND TO KITCHEN</BaseButton>
-                  <BaseButton variant="secondary" @click="isNewOrderModalOpen = false">CANCEL</BaseButton>
+                  <BaseButton 
+                    variant="primary" 
+                    @click="handleCreateOrder"
+                    :disabled="isCreatingOrder"
+                  >
+                    {{ isCreatingOrder ? 'SENDING...' : 'SEND TO KITCHEN' }}
+                  </BaseButton>
+                  <BaseButton 
+                    variant="secondary" 
+                    @click="isNewOrderModalOpen = false"
+                    :disabled="isCreatingOrder"
+                  >
+                    CANCEL
+                  </BaseButton>
                 </div>
               </div>
             </section>
@@ -91,15 +110,32 @@
         </div>
       </div>
     </Transition>
+
+
   </main>
+  <div 
+  v-if="menuState.visible" 
+  class="custom-context-menu" 
+  :style="{ top: menuState.y + 'px', left: menuState.x + 'px' }"
+>
+  <div class="menu-header">Order #{{ menuState.order.tableNumber }}</div>
+  
+  <template v-if="menuState.order.status === 'PENDING'">
+    <button @click="console.log('Update', menuState.order)">Update Order</button>
+    <button @click="deleteOrder" class="delete-opt">Delete Order</button>
+  </template>
+  
+  <button @click="menuState.visible = false">Close</button>
+</div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useOrderStore } from '@/stores/orderStore'
 import { useProductStore } from '@/stores/productStore'
 import { useAuthStore } from '@/stores/authStore'
 import BaseButton from '@/components/BaseButton.vue'
+import OrderKanban from '@/components/OrderKanban.vue'
 
 const orderStore = useOrderStore()
 const prodStore = useProductStore()
@@ -115,11 +151,22 @@ const newOrderData = reactive({
   items: [] 
 })
 
+const menuState = reactive({
+  visible: false,
+  x: 0,
+  y: 0,
+  order: null
+})
+
 onMounted(async () => {
-  await Promise.all([
-    orderStore.fetchOrders(),
-    prodStore.fetchProducts()
-  ])
+    orderStore.startOrdersListener();
+
+    await prodStore.fetchProducts();
+  window.addEventListener('click', () => { menuState.visible = false })
+})
+
+onUnmounted(() => {
+  orderStore.stopOrdersListener()
 })
 
 const filteredProducts = computed(() => {
@@ -159,29 +206,67 @@ const openAddOrderModal = () => {
   isNewOrderModalOpen.value = true
 }
 
+const isCreatingOrder = ref(false)
+
 const handleCreateOrder = async () => {
+ 
   if (!newOrderData.tableNumber || newOrderData.items.length === 0) {
-    alert("Please select a table and at least one product.")
+    alert("Te rugăm să selectezi masa și cel puțin un produs.")
     return
   }
 
+  if (isCreatingOrder.value) return
+  isCreatingOrder.value = true
+
   try {
+   
     const createdOrder = await orderStore.createOrder(
       newOrderData.tableNumber, 
       newOrderData.notes
     )
 
-    await Promise.all(
-    newOrderData.items.map(item => 
-        orderStore.addProductToOrder(createdOrder.id, item.id) 
-    )
-    )
+    console.log("Order: ", createdOrder.id);
 
-    isNewOrderModalOpen.value = false
-    alert("Order sent to kitchen!")
+
+    for (const item of newOrderData.items) {
+      console.log(`Add product ${item.name}...`);
+      await orderStore.addProductToOrder(createdOrder.id, item.id);
+    }
+
+
+    isNewOrderModalOpen.value = false;
+    alert("Order sent to kitchen!");
+    
   } catch (error) {
-    alert("Error: " + error.message)
+    console.error("Error creating order:", error);
+    alert("Error: " + error.message);
+  } finally {
+    isCreatingOrder.value = false;
   }
+}
+
+const handleOrderClick = (order) => {
+  console.log("Order details:", order)
+  alert(`Table ${order.tableNumber}\nNotes: ${order.notes || 'No notes'}\nProducts: ${order.items.length}`)
+}
+
+const handleOrderContext = (e, order) => {
+
+  menuState.x = e.clientX
+  menuState.y = e.clientY
+  menuState.order = order
+  menuState.visible = true
+}
+
+
+const deleteOrder = async () => {
+  if (!confirm(`Are you sure you want to delete the order for table ${menuState.order.tableNumber}?`)) return
+  try {
+
+    await orderStore.deleteOrder(menuState.order.id);
+    alert(`Order for table ${menuState.order.tableNumber} deleted.`)
+    menuState.visible = false
+  } catch (e) { alert(e.message) }
 }
 </script>
 
@@ -231,7 +316,6 @@ const handleCreateOrder = async () => {
   background: linear-gradient(to right, var(--color-accent), transparent); 
   margin: 2rem 0; 
 }
-
 
 .modal-overlay {
   position: fixed; 
@@ -303,6 +387,7 @@ const handleCreateOrder = async () => {
   flex: 1;
   overflow: hidden;
 }
+
 
 .product-picker { 
   padding: 1.5rem; 
@@ -390,6 +475,7 @@ const handleCreateOrder = async () => {
   flex-shrink: 0;
 }
 
+
 .selected-items-wrapper {
   flex: 1;
   min-height: 0;
@@ -470,7 +556,6 @@ const handleCreateOrder = async () => {
   font-family: inherit;
 }
 
-
 .order-footer {
   flex-shrink: 0;
   border-top: 2px solid #ddd;
@@ -500,7 +585,6 @@ const handleCreateOrder = async () => {
   margin-top: 2rem; 
   font-style: italic; 
 }
-
 
 .product-results::-webkit-scrollbar,
 .selected-items::-webkit-scrollbar {
@@ -587,12 +671,55 @@ const handleCreateOrder = async () => {
   }
 }
 
-
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s;
 }
 
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+
+.custom-context-menu {
+  position: fixed;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  min-width: 180px;
+  z-index: 10000;
+  border: 1px solid #ddd;
+  overflow: hidden;
+}
+
+.menu-header {
+  padding: 10px 15px;
+  background: #f4f4f4;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  color: #555;
+}
+
+.custom-context-menu button {
+  width: 100%;
+  padding: 12px 15px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.custom-context-menu button:hover {
+  background: #f0f7ff;
+}
+
+.delete-opt {
+  color: #d9534f;
+  border-top: 1px solid #eee !important;
+}
+
+.delete-opt:hover {
+  background: #fff5f5 !important;
 }
 </style>

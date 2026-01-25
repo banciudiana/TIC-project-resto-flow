@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator')
 const { findByEmail, verifyPassword, checkEmailExists, create } = require('../models/userModel.js')
 const { generateToken, hashPassword } = require('../utils/auth');
+const { auth } = require('../config/firebaseServer');
 
 const login = async (req, res) => {
     const validationErrors = validationResult(req);
@@ -60,6 +61,12 @@ const register = async (req, res) => {
             return res.status(409).json({ error: 'Email already in use.' });
         }
 
+        const userRecord = await auth.createUser({
+            email: email,
+            password: password,
+            displayName: role
+        });
+
         const hashedPassword = await hashPassword(password);
         
         const newUser = {
@@ -97,6 +104,11 @@ const registerOwner = async (req, res) => {
         if (userExists) {
             return res.status(409).json({ error: 'Email already in use.' });
         }
+
+        const userRecord = await auth.createUser({
+            email: email,
+            password: password,
+        });
 
         const hashedPassword = await hashPassword(password);
 
