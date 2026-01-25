@@ -64,7 +64,7 @@ export const useOrderStore = defineStore('order', () => {
 
   
 const activeOrders = computed(() => 
-  orders.value.filter(o => ['PENDING', 'COOKING', 'READY'].includes(o.status))
+  orders.value.filter(o => ['PENDING', 'COOKING', 'READY', 'DELIVERED'].includes(o.status))
 );
 
 
@@ -81,6 +81,30 @@ async function deleteOrder(orderId) {
   }
 }
 
+    async function updateStatus(orderId, status) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authStore.token}`
+        },
+        body: JSON.stringify({ status })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+        throw new Error(data.error || 'Failed to update status');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Update status error:', error);
+        throw error;
+    }
+    }
+
 
   const pendingOrders = computed(() => orders.value.filter(o => o.status === 'PENDING'));
   const cookingOrders = computed(() => orders.value.filter(o => o.status === 'COOKING'));
@@ -91,6 +115,6 @@ async function deleteOrder(orderId) {
 
   return { 
     orders, pendingOrders, cookingOrders, readyOrders, deliveredOrders, activeOrdersCount,
-    createOrder, addProductToOrder, startOrdersListener, stopOrdersListener, activeOrders, deleteOrder
+    createOrder, addProductToOrder, startOrdersListener, stopOrdersListener, activeOrders,updateStatus, deleteOrder
   };
 });

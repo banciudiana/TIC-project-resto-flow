@@ -11,9 +11,23 @@ onMounted(() => {
   authStore.checkAuth()
 })
 
-function handleLogout() {
-  authStore.logout()
-  router.push('/')
+async function handleLogout() {
+  try {
+    const { useOrderStore } = await import('@/stores/orderStore')
+    const orderStore = useOrderStore()
+    orderStore.stopOrdersListener()
+
+   
+    await authStore.logout()
+    
+    
+    await router.replace({ name: 'login' })
+    
+  } catch (error) {
+    console.error("Logout error:", error)
+
+    window.location.href = '/'
+  }
 }
 </script>
 

@@ -4,6 +4,11 @@
     :class="statusClass"
     @contextmenu.prevent="$emit('contextmenu', $event, order)"
     @click="$emit('click', order)"
+    @mousedown="$emit('order-press-start', order)"
+            @mouseup="$emit('order-press-cancel')"
+            @mouseleave="$emit('order-press-cancel')"
+            @touchstart="$emit('order-press-start', order)"
+            @touchend="$emit('order-press-cancel')"
   >
     <div class="card-header">
       <span class="table-badge">TABLE {{ order.tableNumber }}</span>
@@ -38,7 +43,8 @@ const props = defineProps({
   }
 })
 
-defineEmits(['contextmenu', 'click'])
+defineEmits(['contextmenu', 'click','order-press-start', 
+  'order-press-cancel'])
 
 const statusClass = computed(() => `status-${props.order.status.toLowerCase()}`)
 

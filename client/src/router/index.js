@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/CheffView.vue'
+import LoginView from '../views/LoginView.vue'
 import { useAuthStore } from '@/stores/authStore'
 
 const router = createRouter({
@@ -45,12 +45,14 @@ const router = createRouter({
       component: () => import('../views/WaiterView.vue'),
       meta: { requiresAuth: true, role: 'ROLE_WAITER' }
     },
-      
     {
-      path: '/staff-home',
-      name: 'home',
-      component: HomeView
+      path: '/chef',
+      name: 'chef-dashboard',
+      component: () => import('../views/ChefView.vue'),
+      meta: { requiresAuth: true, role: 'ROLE_CHEF' }
     },
+          
+   
   ]
 
   
@@ -58,14 +60,29 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login') }
-   if (to.meta.role && authStore.user?.role !== to.meta.role) {
-    return next('/staff-home')
-  } 
-  
-    next()
-  
-})
+  const isAuthenticated = authStore.isAuthenticated
+  const userRole = authStore.user?.role
 
+
+  if (to.path === '/' && isAuthenticated) {
+    if (userRole === 'ROLE_WAITER') return next('/waiter')
+    if (userRole === 'ROLE_CHEF') return next('/chef')
+    if (userRole === 'ROLE_OWNER') return next('/owner-view')
+  }
+
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next('/')
+  }
+
+  if (to.meta.role && isAuthenticated && userRole !== to.meta.role) {
+    console.warn("Acces denied for :", userRole)
+ 
+    if (userRole === 'ROLE_WAITER') return next('/waiter')
+    if (userRole === 'ROLE_CHEF') return next('/chef')
+    return next('/')
+  }
+
+  next()
+})
 export default router

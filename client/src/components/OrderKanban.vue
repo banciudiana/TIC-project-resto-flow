@@ -12,7 +12,9 @@
           :key="order.id"
           :order="order"
           @click="$emit('order-click', $event)"
-          @contextmenu.prevent="$emit('order-contextmenu', $event.e, $event.item)"
+          @order-press-start="$emit('order-press-start', order)"
+         @order-press-cancel="$emit('order-press-cancel')"
+          @contextmenu="(event, order) => $emit('order-contextmenu', event, order)"
         />
         
         <p v-if="getOrdersByStatus(column.id).length === 0" class="empty-col-msg">
@@ -34,7 +36,8 @@ const props = defineProps({
   }
 })
 
-defineEmits(['order-click', 'order-contextmenu'])
+defineEmits(['order-click', 'order-contextmenu','order-press-start', 
+  'order-press-cancel'])
 
 const columns = [
   { id: 'PENDING', title: 'Pending' },

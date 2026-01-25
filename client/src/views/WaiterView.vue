@@ -211,7 +211,7 @@ const isCreatingOrder = ref(false)
 const handleCreateOrder = async () => {
  
   if (!newOrderData.tableNumber || newOrderData.items.length === 0) {
-    alert("Te rugăm să selectezi masa și cel puțin un produs.")
+    alert("Please provide a table number and add at least one product to the order.")
     return
   }
 

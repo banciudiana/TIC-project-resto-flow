@@ -71,7 +71,7 @@ async function handleSubmit() {
     } else if (authStore.user?.role === 'ROLE_WAITER') {
       router.push('/waiter') 
     } else if (authStore.user?.role === 'ROLE_CHEF') {
-      router.push('/chef-dashboard') 
+      router.push('/chef') 
     } else {
       
       router.push('/staff-home')
