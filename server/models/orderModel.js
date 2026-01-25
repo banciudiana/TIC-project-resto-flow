@@ -95,6 +95,17 @@ const remove = async (id) => {
     await orderCollection.doc(id).delete();
 };
 
+const updateGeneral = async (orderId, updatedData) => {
+    const orderRef = orderCollection.doc(orderId);
+    const updatePayload = {
+        ...updatedData,
+        updatedAt: new Date().toISOString()
+    };
+    
+    await orderRef.update(updatePayload);
+    return { id: orderId, ...updatePayload };
+};
+
 module.exports = { 
     findAll, 
     findById, 
@@ -102,5 +113,5 @@ module.exports = {
     updateStatus, 
     addProductToOrder, 
     remove,
-    removeProductFromOrder
+    removeProductFromOrder, updateGeneral
 };

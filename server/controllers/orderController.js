@@ -70,6 +70,37 @@ const addProductToOrder = async (req, res) => {
     }
 };
 
+const updateOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { tableNumber, notes, items } = req.body;
+
+       
+        const order = await orderModel.findById(id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+
+        if (order.status !== 'PENDING') {
+            return res.status(400).json({ 
+                error: 'Comanda nu mai poate fi modificată deoarece a intrat deja în bucătărie!' 
+            });
+        }
+
+        const totalAmount = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+
+        const updatedData = {
+            tableNumber: parseInt(tableNumber),
+            notes: notes || "",
+            items: items,
+            totalAmount: totalAmount
+        };
+
+        const result = await orderModel.updateGeneral(id, updatedData);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update order: ' + error.message });
+    }
+};
+
 const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
@@ -156,5 +187,5 @@ module.exports = {
     createOrder,
     addProductToOrder,
     updateOrderStatus,
-    deleteOrder,removeProduct
+    deleteOrder,removeProduct, updateOrder
 };

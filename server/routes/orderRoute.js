@@ -5,7 +5,7 @@ const {
     createOrder, 
     addProductToOrder, 
     updateOrderStatus, 
-    deleteOrder,removeProduct 
+    deleteOrder,removeProduct, updateOrder
 } = require('../controllers/orderController');
 
 
@@ -22,5 +22,6 @@ router.patch('/:id/status', validateToken, updateOrderStatus);
 
 router.delete('/:id', validateToken, deleteOrder);
 router.delete('/:id/remove-product', validateToken, isWaiter, removeProduct);
+router.put('/:id', validateToken, isWaiter, updateOrder);
 
 module.exports = router;

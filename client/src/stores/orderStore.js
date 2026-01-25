@@ -64,7 +64,7 @@ export const useOrderStore = defineStore('order', () => {
 
   
 const activeOrders = computed(() => {
-  const fourHoursAgo = new Date(Date.now() - 8 * 60 * 60 * 1000);
+  const fourHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
 
   return orders.value.filter(o => {
 
@@ -121,6 +121,25 @@ async function deleteOrder(orderId) {
     }
 
 
+    
+    async function updateOrder(orderId, updatedData) {
+    const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+        method: 'PUT', 
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authStore.token}`
+        },
+        body: JSON.stringify({
+        tableNumber: updatedData.tableNumber,
+        notes: updatedData.notes,
+        items: updatedData.items 
+        })
+    });
+
+    if (!response.ok) throw new Error('Failed to update order');
+    return await response.json();
+    }
+
   const pendingOrders = computed(() => orders.value.filter(o => o.status === 'PENDING'));
   const cookingOrders = computed(() => orders.value.filter(o => o.status === 'COOKING'));
   const readyOrders = computed(() => orders.value.filter(o => o.status === 'READY'));
@@ -130,6 +149,6 @@ async function deleteOrder(orderId) {
 
   return { 
     orders, pendingOrders, cookingOrders, readyOrders, deliveredOrders, activeOrdersCount,
-    createOrder, addProductToOrder, startOrdersListener, stopOrdersListener, activeOrders,updateStatus, deleteOrder
+    createOrder, addProductToOrder, startOrdersListener, stopOrdersListener, activeOrders,updateStatus, deleteOrder, updateOrder
   };
 });

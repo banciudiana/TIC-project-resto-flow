@@ -3,7 +3,7 @@
     <div class="modal-overlay" @click.self="$emit('close')">
       <div class="modal-content order-modal">
         <header class="modal-header">
-          <h2>CREATE NEW ORDER</h2>
+          <h2>{{ initialData ? 'UPDATE ORDER' : 'CREATE NEW ORDER' }}</h2>
           <div class="table-input-group">
             <label>TABLE </label>
             <input 
@@ -99,14 +99,10 @@ import { ref, reactive, computed } from 'vue'
 import BaseButton from './BaseButton.vue'
 
 const props = defineProps({
-  products: {
-    type: Array,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  }
+  products: { type: Array, required: true },
+  loading: { type: Boolean, default: false },
+
+  initialData: { type: Object, default: null } 
 })
 
 const emit = defineEmits(['close', 'confirm'])
@@ -115,9 +111,9 @@ const searchQuery = ref('')
 const sortBy = ref('name_asc')
 
 const orderData = reactive({
-  tableNumber: '',
-  notes: '',
-  items: [] 
+  tableNumber: props.initialData?.tableNumber || '',
+  notes: props.initialData?.notes || '',
+  items: props.initialData?.items ? [...props.initialData.items] : []
 })
 
 const filteredProducts = computed(() => {
@@ -153,8 +149,15 @@ const submitOrder = () => {
     return
   }
 
-  emit('confirm', { ...orderData })
+  emit('confirm', { 
+    ...orderData, 
+    id: props.initialData?.id || null 
+  });
 }
+
+const modalTitle = computed(() => 
+  props.initialData ? `UPDATE ORDER #${props.initialData.tableNumber}` : 'CREATE NEW ORDER'
+);
 </script>
 
 <style scoped>
