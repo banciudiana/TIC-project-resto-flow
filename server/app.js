@@ -14,6 +14,7 @@ const productRoutes = require('./routes/productRoute');
 const orderRoutes = require('./routes/orderRoute');
 const categoryRoutes = require('./routes/categoryRoute');
 const userRoutes = require('./routes/userRoute');
+const tableRoutes = require('./routes/tableRoutes');
 
 
 
@@ -22,6 +23,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/tables', tableRoutes);
 
 // check logging system for cors, helmet, morgan
 app.get('/api/health', (req, res) => {
