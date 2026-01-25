@@ -7,12 +7,15 @@
           <div class="table-input-group">
             <label>TABLE </label>
             <input 
-              v-model="orderData.tableNumber" 
-              type="number" 
-              placeholder="0" 
-              class="table-number-input" 
+                v-model.number="orderData.tableNumber" 
+                type="number" 
+                placeholder="0" 
+                :min="1"
+                :max="tableStore.totalTables"
+                class="table-number-input" 
+                @input="validateTableNumber"
             />
-          </div>
+        </div>
         </header>
 
         <div class="order-grid">
@@ -97,6 +100,8 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import BaseButton from './BaseButton.vue'
+import { onMounted } from 'vue'
+import { useTableStore } from '@/stores/tableStore'
 
 const props = defineProps({
   products: { type: Array, required: true },
@@ -109,6 +114,17 @@ const emit = defineEmits(['close', 'confirm'])
 
 const searchQuery = ref('')
 const sortBy = ref('name_asc')
+const tableStore = useTableStore()
+
+const validateTableNumber = () => {
+  const max = tableStore.totalTables;
+  if (orderData.tableNumber > max) {
+    orderData.tableNumber = max;
+  }
+  if (orderData.tableNumber < 0) {
+    orderData.tableNumber = 0;
+  }
+}
 
 const orderData = reactive({
   tableNumber: props.initialData?.tableNumber || '',

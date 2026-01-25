@@ -14,12 +14,10 @@ export const useCategoryStore = defineStore('category', () => {
         });
         const data = await response.json();
         
-        // REPARĂ AICI: Ne asigurăm că data este un Array
-        // Dacă serverul trimite eroare, data ar putea fi { error: '...' }
         categories.value = Array.isArray(data) ? data : [];
     } catch (error) {
         console.error('Fetch categories error:', error);
-        categories.value = []; // Resetăm la array gol în caz de eroare gravă
+        categories.value = []; 
     }
     }
 
@@ -37,8 +35,8 @@ export const useCategoryStore = defineStore('category', () => {
         
         if (!response.ok) throw new Error(data.error || 'Failed');
 
-        // REPARĂ AICI: Adăugăm obiectul NOU în array-ul EXISTENT
-        // Nu face categories.value = data; (asta ar transforma array-ul în obiect)
+    
+   
         categories.value.push(data); 
         
         return data;
