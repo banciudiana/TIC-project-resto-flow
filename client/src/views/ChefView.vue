@@ -14,11 +14,12 @@
     <section class="orders-container">
       <OrderKanban 
         :orders="orderStore.activeOrders" 
-        @order-click="handleStatusToggle" 
+        @order-click="handleShowDetails"
+       @order-hold-success="handleStatusToggle"
       />
     </section>
 
-    <audio ref="notificationSound" src="/sounds/new-order.mp3" preload="auto"></audio>
+
   </main>
 </template>
 
@@ -59,6 +60,16 @@ const handleStatusToggle = async (order) => {
     console.error("Eroare update status:", error)
   }
 }
+
+const handleShowDetails = (order) => {
+
+  const productsList = order.items.map(i => `- ${i.name}`).join('\n');
+  alert(
+    `Table ${order.tableNumber}\n` +
+    `Products:\n${productsList}\n\n` +
+    `Notes: ${order.notes || 'No notes'}`
+  );
+};
 </script>
 
 <style scoped>

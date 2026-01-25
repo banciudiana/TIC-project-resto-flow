@@ -11,9 +11,11 @@
           v-for="order in getOrdersByStatus(column.id)" 
           :key="order.id"
           :order="order"
-          @click="$emit('order-click', $event)"
+          @click="$emit('order-click', order)"
+          @dblclick="$emit('order-dblclick', $event)"
+          @hold-success="$emit('order-hold-success', $event)"
           @order-press-start="$emit('order-press-start', order)"
-         @order-press-cancel="$emit('order-press-cancel')"
+          @order-press-cancel="$emit('order-press-cancel')"
           @contextmenu="(event, order) => $emit('order-contextmenu', event, order)"
         />
         
@@ -37,7 +39,7 @@ const props = defineProps({
 })
 
 defineEmits(['order-click', 'order-contextmenu','order-press-start', 
-  'order-press-cancel'])
+  'order-press-cancel', 'order-hold-success'])
 
 const columns = [
   { id: 'PENDING', title: 'Pending' },

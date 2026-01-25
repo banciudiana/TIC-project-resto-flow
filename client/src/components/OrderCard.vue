@@ -4,12 +4,13 @@
     :class="statusClass"
     @contextmenu.prevent="$emit('contextmenu', $event, order)"
     @click="$emit('click', order)"
-    @mousedown="$emit('order-press-start', order)"
-            @mouseup="$emit('order-press-cancel')"
-            @mouseleave="$emit('order-press-cancel')"
-            @touchstart="$emit('order-press-start', order)"
-            @touchend="$emit('order-press-cancel')"
+    @mousedown="startPress"
+    @mouseup="cancelPress"
+    @mouseleave="cancelPress"
+    @touchstart="startPress"
+    @touchend="cancelPress"
   >
+  <div v-if="isPressing" class="press-progress"></div>
     <div class="card-header">
       <span class="table-badge">TABLE {{ order.tableNumber }}</span>
       <span class="order-time">{{ formattedTime }}</span>
@@ -34,7 +35,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+
+
 
 const props = defineProps({
   order: {
@@ -43,8 +46,26 @@ const props = defineProps({
   }
 })
 
-defineEmits(['contextmenu', 'click','order-press-start', 
-  'order-press-cancel'])
+const emit = defineEmits(['contextmenu', 'click','order-press-start', 
+  'order-press-cancel', 'hold-success'])
+
+const isPressing = ref(false)
+let timer = null
+
+function startPress() {
+  isPressing.value = true
+  timer = setTimeout(() => {
+    if (isPressing.value) {
+      emit('hold-success', props.order)
+      isPressing.value = false
+    }
+  }, 800) 
+}
+
+function cancelPress() {
+  isPressing.value = false
+  clearTimeout(timer)
+}
 
 const statusClass = computed(() => `status-${props.order.status.toLowerCase()}`)
 

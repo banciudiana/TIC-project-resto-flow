@@ -19,6 +19,7 @@
         :orders="orderStore.activeOrders" 
         @order-click="handleOrderClick"
         @order-contextmenu="handleOrderContext"
+        @order-hold-success="handleStatusToggle"
     />
     </section>
 
@@ -114,19 +115,19 @@
 
   </main>
   <div 
-  v-if="menuState.visible" 
-  class="custom-context-menu" 
-  :style="{ top: menuState.y + 'px', left: menuState.x + 'px' }"
->
-  <div class="menu-header">Order #{{ menuState.order.tableNumber }}</div>
-  
-  <template v-if="menuState.order.status === 'PENDING'">
-    <button @click="console.log('Update', menuState.order)">Update Order</button>
-    <button @click="deleteOrder" class="delete-opt">Delete Order</button>
-  </template>
-  
-  <button @click="menuState.visible = false">Close</button>
-</div>
+    v-if="menuState.visible" 
+    class="custom-context-menu" 
+    :style="{ top: menuState.y + 'px', left: menuState.x + 'px' }"
+    >
+    <div class="menu-header">Order #{{ menuState.order.tableNumber }}</div>
+    
+    <template v-if="menuState.order.status === 'PENDING'">
+        <button @click="console.log('Update', menuState.order)">Update Order</button>
+        <button @click="deleteOrder" class="delete-opt">Delete Order</button>
+    </template>
+    
+    <button @click="menuState.visible = false">Close</button>
+    </div>
 </template>
 
 <script setup>
@@ -144,6 +145,7 @@ const authStore = useAuthStore()
 const isNewOrderModalOpen = ref(false)
 const searchQuery = ref('')
 const sortBy = ref('name_asc')
+const pressTimer = ref(null);
 
 const newOrderData = reactive({
   tableNumber: '',
@@ -257,6 +259,22 @@ const handleOrderContext = (e, order) => {
   menuState.order = order
   menuState.visible = true
 }
+
+const handleStatusToggle = async (order) => {
+
+  let nextStatus = ''
+  if (order.status === 'READY') nextStatus = 'DELIVERED'
+  else return 
+
+  try {
+    await orderStore.updateStatus(order.id, nextStatus)
+  } catch (error) {
+    console.error("Eroare update status livrare:", error)
+  }
+}
+
+
+
 
 
 const deleteOrder = async () => {

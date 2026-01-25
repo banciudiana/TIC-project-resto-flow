@@ -63,9 +63,24 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   
-const activeOrders = computed(() => 
-  orders.value.filter(o => ['PENDING', 'COOKING', 'READY', 'DELIVERED'].includes(o.status))
-);
+const activeOrders = computed(() => {
+  const fourHoursAgo = new Date(Date.now() - 8 * 60 * 60 * 1000);
+
+  return orders.value.filter(o => {
+
+    if (['PENDING', 'COOKING', 'READY'].includes(o.status)) {
+      return true;
+    }
+
+ 
+    if (o.status === 'DELIVERED') {
+      const orderDate = new Date(o.createdAt);
+      return orderDate >= fourHoursAgo;
+    }
+
+    return false;
+  });
+});
 
 
 async function deleteOrder(orderId) {
