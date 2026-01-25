@@ -35,7 +35,8 @@ const props = defineProps({
   orders: {
     type: Array,
     required: true
-  }
+  },
+  isReadonly: { type: Boolean, default: false }
 })
 
 defineEmits(['order-click', 'order-contextmenu','order-press-start', 
@@ -52,6 +53,11 @@ const columns = [
 const getOrdersByStatus = (status) => {
   return props.orders.filter(order => order.status === status)
 }
+
+const handleHoldSuccess = (order) => {
+  if (props.isReadonly) return; 
+  emit('order-hold-success', order);
+};
 </script>
 
 <style scoped>

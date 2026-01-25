@@ -40,6 +40,18 @@ const router = createRouter({
     }
     },
     {
+      path: '/owner/statistics',
+      name: 'Statistics',
+      component: () => import('@/views/StatisticsView.vue'),
+      meta: { requiresAuth: true, role: 'ROLE_OWNER' }
+    },
+    {
+      path: '/owner/live-monitor',
+      name: 'LiveMonitor',
+      component: () => import('@/views/LiveMonitorView.vue'),
+      meta: { requiresAuth: true, role: 'ROLE_OWNER' }
+    },
+    {
       path: '/waiter',
       name: 'waiter-dashboard',
       component: () => import('../views/WaiterView.vue'),

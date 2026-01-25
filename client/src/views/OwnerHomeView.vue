@@ -26,7 +26,7 @@
       <div class="card">
         <h3>Reports</h3>
         <p>View sales and restaurant performance</p>
-        <BaseButton variant="primary">
+        <BaseButton variant="primary" @click="$router.push('/owner/statistics')"  >
           View Statistics
         </BaseButton>
       </div>
