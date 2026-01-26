@@ -16,7 +16,7 @@ const categoryRoutes = require('./routes/categoryRoute');
 const userRoutes = require('./routes/userRoute');
 const tableRoutes = require('./routes/tableRoutes');
 
-app.options('*', cors());
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
