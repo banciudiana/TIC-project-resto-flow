@@ -180,10 +180,7 @@ const getProgressWidth = (product, index) => {
   min-width: 60px;
 }
 
-.medal {
-  font-size: 2rem;
-  line-height: 1;
-}
+
 
 .rank-number {
   font-size: 0.75rem;
@@ -233,33 +230,9 @@ const getProgressWidth = (product, index) => {
   color: #2c3e50;
 }
 
-.progress-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: rgba(0,0,0,0.05);
-  overflow: hidden;
-}
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
-  transition: width 0.6s ease;
-}
 
-.rank-1 .progress-fill {
-  background: linear-gradient(90deg, #ffd700 0%, #f39c12 100%);
-}
 
-.rank-2 .progress-fill {
-  background: linear-gradient(90deg, #c0c0c0 0%, #95a5a6 100%);
-}
-
-.rank-3 .progress-fill {
-  background: linear-gradient(90deg, #cd7f32 0%, #e67e22 100%);
-}
 
 .no-data {
   padding: 3rem 1rem;
