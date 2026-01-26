@@ -116,6 +116,13 @@ const searchQuery = ref('')
 const sortBy = ref('name_asc')
 const tableStore = useTableStore()
 
+onMounted(async () => {
+ 
+  if (!tableStore.totalTables) {
+    await tableStore.fetchTableConfig();
+  }
+});
+
 const validateTableNumber = () => {
   const max = tableStore.totalTables;
   if (orderData.tableNumber > max) {

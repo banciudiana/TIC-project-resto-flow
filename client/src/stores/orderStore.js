@@ -140,6 +140,62 @@ async function deleteOrder(orderId) {
     return await response.json();
     }
 
+
+    function getOrdersByRange(range) {
+        const now = new Date();
+        const delivered = orders.value.filter(o => o.status === 'DELIVERED');
+
+        return delivered.filter(order => {
+            const orderDate = new Date(order.createdAt);
+            if (range === 'week') {
+            const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return orderDate >= lastWeek;
+            }
+            if (range === 'month') {
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            return orderDate >= lastMonth;
+            }
+            return true;
+        });
+        }
+
+
+    const getTopProducts = computed(() => (range) => {
+        const filtered = getOrdersByRange(range);
+        
+        if (!filtered || filtered.length === 0) {
+            return [];
+        }
+        
+       
+        const productCount = {};
+        
+        filtered.forEach(order => {
+            if (order.items && Array.isArray(order.items)) {
+            order.items.forEach(item => {
+                const key = item.id; 
+                
+                if (!productCount[key]) {
+                productCount[key] = {
+                    id: item.id,
+                    name: item.name,
+                    count: 0,
+                    totalRevenue: 0
+                };
+                }
+                
+                productCount[key].count += 1;
+                productCount[key].totalRevenue += Number(item.price) || 0;
+            });
+            }
+        });
+        
+        
+        return Object.values(productCount)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3);
+        });
+
   const pendingOrders = computed(() => orders.value.filter(o => o.status === 'PENDING'));
   const cookingOrders = computed(() => orders.value.filter(o => o.status === 'COOKING'));
   const readyOrders = computed(() => orders.value.filter(o => o.status === 'READY'));
@@ -148,7 +204,7 @@ async function deleteOrder(orderId) {
   const activeOrdersCount = computed(() => orders.value.filter(o => o.status !== 'DELIVERED').length);
 
   return { 
-    orders, pendingOrders, cookingOrders, readyOrders, deliveredOrders, activeOrdersCount,
+    orders, pendingOrders, cookingOrders, readyOrders, deliveredOrders, activeOrdersCount, getOrdersByRange, getTopProducts,
     createOrder, addProductToOrder, startOrdersListener, stopOrdersListener, activeOrders,updateStatus, deleteOrder, updateOrder
   };
 });
