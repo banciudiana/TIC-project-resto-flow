@@ -8,6 +8,8 @@ app.use(express.json());
 globalAppMiddleware(app);
 
 
+
+
 // ROUTES
 const authRoutes = require('./routes/authRoute');
 const productRoutes = require('./routes/productRoute');
