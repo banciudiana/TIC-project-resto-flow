@@ -31,7 +31,9 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
   console.log(` Server is running on port ${PORT}`);
   console.log(` Mod: ${process.env.NODE_ENV}`);
 });
+
+module.exports = app;
