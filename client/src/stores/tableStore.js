@@ -21,5 +21,21 @@ export const useTableStore = defineStore('tableStore', () => {
     }
   }
 
-  return { totalTables, fetchTableConfig }
+    async function updateTotalTables(newCount) {
+        const authStore = useAuthStore() 
+        const response = await fetch(`${API_BASE_URL}/api/tables/config`, {
+            method: 'PUT',
+            headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authStore.token}`
+            },
+            body: JSON.stringify({ totalTables: newCount })
+        })
+        
+        if (response.ok) {
+            totalTables.value = newCount
+        }
+    }
+
+  return { totalTables, fetchTableConfig, updateTotalTables }
 })
